@@ -1,4 +1,5 @@
-
+# Re-execute file generation after reset
+revised_code = """
 # Revised AI Business Intelligence Dashboard
 
 import streamlit as st
@@ -34,7 +35,7 @@ def load_file(file):
     if file.name.endswith(".csv"):
         return pd.read_csv(file)
     elif file.name.endswith(".txt"):
-        return pd.read_csv(file, delimiter="\t")
+        return pd.read_csv(file, delimiter="\\t")
     elif file.name.endswith(".xlsx"):
         return pd.read_excel(file)
     else:
@@ -62,9 +63,6 @@ if uploaded_file:
         time_cols = [c for c in df.columns if pd.api.types.is_datetime64_any_dtype(df[c])]
         cat_cols = df.select_dtypes(include='object').columns.tolist()
 
-        st.subheader("Data Preview")
-        st.dataframe(df.head())
-
         # ---------------------------
         # USER SELECTION
         # ---------------------------
@@ -86,6 +84,36 @@ if uploaded_file:
             st.metric("Max", f"{df[target_col].max():,.2f}")
 
         # ---------------------------
+        # AI INSIGHTS
+        # ---------------------------
+        st.subheader("📌 AI-Generated Insights")
+
+        if openai.api_key:
+            with st.spinner("Generating insights with OpenAI..."):
+                schema = "\\n".join([f"{col} ({str(df[col].dtype)})" for col in df.columns])
+                prompt = f\"\"\"
+You are a senior business intelligence analyst. Analyze the uploaded dataset described below.
+
+Schema:
+{schema}
+
+Target Metric: {target_col}
+Sample Data: {sample}
+
+Write a short business insights summary including trends, drivers, and opportunities.
+\"\"\"
+                response = openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You are a business intelligence assistant."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                st.markdown(response.choices[0].message.content)
+        else:
+            st.info("Add your OpenAI API key to unlock AI insights.")
+
+        # ---------------------------
         # CHARTS
         # ---------------------------
         st.subheader("Visual Trends")
@@ -105,36 +133,19 @@ if uploaded_file:
         st.plotly_chart(fig3, use_container_width=True)
 
         # ---------------------------
-        # AI INSIGHTS
+        # DATA PREVIEW (MOVED TO BOTTOM)
         # ---------------------------
-        st.subheader("📌 AI-Generated Insights")
-
-        if openai.api_key:
-            with st.spinner("Generating insights with OpenAI..."):
-                schema = "\n".join([f"{col} ({str(df[col].dtype)})" for col in df.columns])
-                prompt = f"""
-You are a senior business intelligence analyst. Analyze the uploaded dataset described below.
-
-Schema:
-{schema}
-
-Target Metric: {target_col}
-Sample Data: {sample}
-
-Write a short business insights summary including trends, drivers, and opportunities.
-"""
-                response = openai.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": "You are a business intelligence assistant."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                st.markdown(response.choices[0].message.content)
-        else:
-            st.info("Add your OpenAI API key to unlock AI insights.")
+        st.subheader("Data Preview")
+        st.dataframe(df.head())
 
     except Exception as e:
         st.error(f"Error: {e}")
 else:
     st.info("👈 Upload a file to begin.")
+"""
+
+output_path = "/mnt/data/app_reordered.py"
+with open(output_path, "w") as f:
+    f.write(revised_code)
+
+output_path
