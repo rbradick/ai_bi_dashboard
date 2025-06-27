@@ -1,28 +1,14 @@
-# AI Business Intelligence Dashboard
+# Reordered AI Dashboard App
 
-This app allows you to upload a dataset (CSV, Excel, or TXT) and automatically generates:
-- Key metrics and trends
-- Interactive charts
-- AI-generated business insights using OpenAI's GPT model
+This Streamlit app allows you to:
+- Upload a CSV/XLSX/TXT dataset
+- View metrics and trends
+- Receive AI-generated business insights
 
-## How to Run
+## To Run
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
-
-## Setup
-
-Ensure your OpenAI API key is available either via environment variable `OPENAI_API_KEY` or `.streamlit/secrets.toml`:
-
-```toml
-[OPENAI]
-OPENAI_API_KEY="your-key-here"
-```
-
-## Features
-- Auto-preprocessing of uploaded data
-- Dynamic metric and chart rendering
-- AI-generated analysis with enhanced prompt context
-- More visualization types and downloadable insights
+Ensure your OpenAI API key is available in `.streamlit/secrets.toml` or as the `OPENAI_API_KEY` environment variable.

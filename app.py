@@ -1,5 +1,4 @@
-# Re-execute file generation after reset
-revised_code = """
+
 # Revised AI Business Intelligence Dashboard
 
 import streamlit as st
@@ -35,7 +34,7 @@ def load_file(file):
     if file.name.endswith(".csv"):
         return pd.read_csv(file)
     elif file.name.endswith(".txt"):
-        return pd.read_csv(file, delimiter="\\t")
+        return pd.read_csv(file, delimiter="\t")
     elif file.name.endswith(".xlsx"):
         return pd.read_excel(file)
     else:
@@ -90,8 +89,8 @@ if uploaded_file:
 
         if openai.api_key:
             with st.spinner("Generating insights with OpenAI..."):
-                schema = "\\n".join([f"{col} ({str(df[col].dtype)})" for col in df.columns])
-                prompt = f\"\"\"
+                schema = "\n".join([f"{col} ({str(df[col].dtype)})" for col in df.columns])
+                prompt = f"""
 You are a senior business intelligence analyst. Analyze the uploaded dataset described below.
 
 Schema:
@@ -101,7 +100,7 @@ Target Metric: {target_col}
 Sample Data: {sample}
 
 Write a short business insights summary including trends, drivers, and opportunities.
-\"\"\"
+"""
                 response = openai.chat.completions.create(
                     model="gpt-4o",
                     messages=[
@@ -142,10 +141,3 @@ Write a short business insights summary including trends, drivers, and opportuni
         st.error(f"Error: {e}")
 else:
     st.info("👈 Upload a file to begin.")
-"""
-
-output_path = "/mnt/data/app_reordered.py"
-with open(output_path, "w") as f:
-    f.write(revised_code)
-
-output_path
